@@ -1,0 +1,132 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Sample SAM Template for automating TGW static route updates
+Parameters:
+  TGWRegion:
+    Description: The AWS Region where you TGW is deployed
+    Default: us-east-2
+    Type: String
+  TGWDestinationAttachmentID:
+    Description: The TGW attachment ID that will be the destination of the static route
+    Default: tgw-attach-123456789abcd1234
+    Type: String
+  TGWProductionRouteTableID:
+    Description: The TGW route table ID that will be updated with static route
+    Default: tgw-rtb-production
+    Type: String
+  TGWRoute:
+    Description: The static route that will be added/removed from the TGW Route Table
+    Default: 0.0.0.0/0
+    Type: String
+    MinLength: 8
+    MaxLength: 19
+  TGWMonitorRouteTableID:
+    Description: The ID for the TGW Route table used for monitoring changes in dynamic routes
+    Default: tgw-rtb-monitor
+    Type: String
+
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Runtime: python3.8
+    Timeout: 10
+    Environment:
+      Variables:
+        TGW_ROUTE_TABLE: !Ref TGWProductionRouteTableID
+        ROUTE: !Ref TGWRoute
+        REGION: !Ref TGWRegion
+
+
+Resources:
+
+  # Add TGW Route Lambda
+  AddTGWRoute:
+    Type: AWS::Serverless::Function
+    FunctionName: SAM-AddTGWRoute
+    Properties:
+      CodeUri: AddTGWRoute/
+      Handler: AddTGWRoute.lambda_handler
+      Environment:
+        Variables:
+          TGW_DESTINATION_ATTACHMENT_ID: !Ref TGWDestinationAttachmentID
+      Policies:
+        - Statement:
+          - Sid: SSMDescribeParametersPolicy
+            Effect: Allow
+            Action:
+            - ec2:CreateTransitGatewayRoute
+            - ec2:DeleteTransitGatewayRoute
+            - ec2:SearchTransitGatewayRoutes
+            Resource: '*'
+
+  #Remove TGW Route Lambda
+  RemoveTGWRoute:
+      Type: AWS::Serverless::Function
+      FunctionName: SAM-RemoveTGWRoute
+      Properties:
+        CodeUri: RemoveTGWRoute/
+        Handler: RemoveTGWRoute.lambda_handler
+        Policies:
+          - Statement:
+            - Sid: SSMDescribeParametersPolicy
+              Effect: Allow
+              Action:
+              - ec2:CreateTransitGatewayRoute
+              - ec2:DeleteTransitGatewayRoute
+              - ec2:SearchTransitGatewayRoutes
+              Resource: '*'
+
+  # State machine definition
+  TGWStateMachine:
+      Type: AWS::Serverless::StateMachine
+      Properties:
+        DefinitionUri: state_machine/state_machine.json
+        DefinitionSubstitutions:
+          RemoveTGWRouteFunction: !GetAtt RemoveTGWRoute.Arn
+          AddTGWRouteFunction: !GetAtt AddTGWRoute.Arn
+        Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref AddTGWRoute
+        - LambdaInvokePolicy:
+            FunctionName: !Ref RemoveTGWRoute
+        Events:
+          CWEvent:
+            Type: CloudWatchEvent
+            Properties:
+              Pattern:
+                source:
+                  - aws.networkmanager
+                detail-type:
+                  - Network Manager Routing Update
+                detail:
+                  routes:
+                    destinationCidrBlock:
+                      - !Ref TGWRoute
+                  transitGatewayRouteTableArns:
+                    - !Join
+                      - ''
+                      - - 'arn:aws:ec2:'
+                        - !Ref TGWRegion
+                        - ':'
+                        - !Ref 'AWS::AccountId'
+                        - ':transit-gateway-route-table/'
+                        - !Ref TGWMonitorRouteTableID
+
+
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+
+  TGWStateMachineOutput:
+    Description: "Lambda Step Functions State Machine ARN"
+    Value: !GetAtt TGWStateMachine.Arn
+  AddTGWRouteFunctionOutput:
+    Description: "AddTGWRoute Lambda Function ARN"
+    Value: !GetAtt AddTGWRoute.Arn
+  RemoveTGWRouteFunctionOutput:
+    Description: "RemoveTGWRoute Lambda Function ARN"
+    Value: !GetAtt RemoveTGWRoute.Arn

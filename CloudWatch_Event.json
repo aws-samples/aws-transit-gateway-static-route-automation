@@ -1,0 +1,17 @@
+{
+  "source": [
+    "aws.networkmanager"
+  ],
+  "detail-type": [
+    "Network Manager Routing Update"
+  ],
+  "detail": {
+    "routes": {
+      "destinationCidrBlock": [
+        "1.1.1.1/32"
+      ]
+    },
+    "transitGatewayRouteTableArns": [
+      "arn:aws:ec2:us-east-2:123456789101:transit-gateway-route-table/tgw-rtb-ID"
+    ]
+}

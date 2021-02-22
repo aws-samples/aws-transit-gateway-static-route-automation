@@ -1,0 +1,33 @@
+{
+   "version":"0",
+   "id":"f506ece6-0d8c-d802-18f0-69b9c3d93ba4",
+   "detail-type":"Network Manager Routing Update",
+   "source":"aws.networkmanager",
+   "account":"123456789012",
+   "time":"2021-02-20T04:58:13Z",
+   "region":"us-west-2",
+   "resources":[
+      "arn:aws:networkmanager::123456789012:global-network/global-network-0c3b5409c08e463a0",
+      "arn:aws:ec2:us-east-2:123456789012:transit-gateway/tgw-09e80754807ce3251"
+   ],
+   "detail":{
+      "changeType":"TGW-ROUTE-UNINSTALLED",
+      "changeDescription":"Routes in one or more Transit Gateway route tables have been uninstalled.",
+      "region":"us-east-2",
+      "transitGatewayRouteTableArns":[
+         "arn:aws:ec2:us-east-2:123456789012:transit-gateway-route-table/tgw-rtb-073e7c915ed69e225"
+      ],
+      "sequenceNumber":1613797088763,
+      "routes":[
+         {
+            "destinationCidrBlock":"1.1.1.4/32",
+            "attachments":[
+
+            ],
+            "routeType":"route_static",
+            "routeState":"blackhole"
+         }
+      ],
+      "transitGatewayArn":"arn:aws:ec2:us-east-2:123456789012:transit-gateway/tgw-09e80754807ce3251"
+   }
+}

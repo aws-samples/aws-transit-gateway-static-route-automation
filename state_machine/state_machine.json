@@ -1,0 +1,31 @@
+{
+  "Comment": "Route Update State Machine",
+  "StartAt": "ProcessTGWEvent",
+  "States": {
+    "ProcessTGWEvent": {
+      "Type": "Choice",
+      "Choices":[
+        {
+          "Variable": "$.detail.changeType",
+          "StringEquals": "TGW-ROUTE-INSTALLED",
+          "Next": "RemoveTGWRoute"
+        },
+        {
+          "Variable": "$.detail.changeType",
+          "StringEquals": "TGW-ROUTE-UNINSTALLED",
+          "Next": "AddTGWRoute"
+        }
+      ]
+    },
+    "RemoveTGWRoute": {
+      "Type": "Task",
+      "Resource": "${RemoveTGWRouteFunction}",
+      "End": true
+    },
+    "AddTGWRoute": {
+      "Type": "Task",
+      "Resource": "${AddTGWRouteFunction}",
+      "End": true
+    }
+  }
+}

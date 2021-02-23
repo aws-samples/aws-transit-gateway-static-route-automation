@@ -1,11 +1,19 @@
-## My Project
+# AWS Transit Gateway automation for static routes
 
-TODO: Fill this README out!
+## About
+This project is intended to help with automating crating/deleting of [AWS Transit Gateway](https://aws.amazon.com/transit-gateway/) (TGW) static routes whenever specific network conditions are met. Conceptually, it can be thought of as creating a 'floating/conditional' static route in the TGW route table.
 
-Be sure to:
+## What challenge is this solving?
 
-* Change the title in this README
-* Edit your repository description on GitHub
+
+
+## Security
+
+See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+
+## License
+
+This library is licensed under the MIT-0 License. See the LICENSE file.
 
 ## Security
 

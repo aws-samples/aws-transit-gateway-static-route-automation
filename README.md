@@ -1,9 +1,9 @@
 # AWS Transit Gateway automation for static routes
 
 ## About
-This project is intended to help with automating crating/deleting of [AWS Transit Gateway](https://aws.amazon.com/transit-gateway/) (TGW) static routes triggered by specific network event. Conceptually, it can be thought of as creating an API driven, 'floating/conditional' static route in the TGW route table.
+This project is intended to help with automating creating/deleting of [AWS Transit Gateway](https://aws.amazon.com/transit-gateway/) (TGW) static routes triggered by specific network event. Conceptually, it can be thought of as creating an API driven, 'floating/conditional' static route in the TGW route table.
 
-## What challenge is this solving?
+## What challenge are we solving?
 AWS TGW is a highly available, scalable distributed routing service managed by AWS. It operates like a logical router that allows for connecting different environments (Amazon VPCs, datacenters, TGWs in other AWS regions) and creating hub-and-spoke topologies.
 
 Just like a router, TGW makes forwarding decisions based on the information in its routing table. There are a couple of ways to populate that routing table:
@@ -29,12 +29,28 @@ To solve it you have two options:
   * configure the VPN to advertise 2x, more specific routes (instead of 1x): **0.0.0.0/1** and **128.0.0.0/1**
   * configure the static **0.0.0.0/0 via peering**
   * Because the VPN routes are more specific they'd be preferred over the less specific static route.
-* if you're forced to use the same route (i.e. you can't edit the remote route advertisement) then **the TGW static route automation** in this document can help you. It will allow you to add the static default route only when the dynamic, VPN route disappears.
+* if you must use the same route (i.e. you can't edit the remote route advertisement) then **the TGW static route automation** in this document can help you. It will allow you to add the static default route only when the dynamic, VPN route disappears.
 
 ## Architecture
-For this setup to work you will need to have at least two route tables configured on your TGW. The first one will be used by all the attachments - effectively controlling how traffic is forwarded between them. The second one, let's call it 'monitoring route table' will be used to track any dynamic routing changes that the automation will trigger changes on.
+For this setup to work you will need to have at least two route tables configured on your TGW. The first one, **production route table**, will be used by all the attachments - effectively controlling how traffic is forwarded between them. The second one, let's call it **'monitoring route table'** will be used to track any dynamic routing changes that the automation will trigger changes on.
 
-The architecture below show an overview
+The architecture below shows an overview of how the setup will work.
+
+1. Steady State
+In the example below there is a TGW with two attachments: VPN and Peering. There are two route tables - Monitoring, not used by any attachments and Production, used by all attachments (this would include any VPCs that the TGW would attach to). All the routes are propagated into both Route Tables.
+![Steady State](/images/steady-state.png)
+Format: ![Alt Text](url)
+
+2. VPN goes down
+When the VPN connection goes down the dynamic route would be removed from both route tables. There is a CloudWatch event enabled for the Monitoring route table. The CloudWatch event will trigger a Step Function that will act based on the event. Because a route was un-installed it will add a static route via alternative path (peering attachment) to the production route table.
+![VPN Down](/images/VPN goes down.png)
+Format: ![Alt Text](url)
+
+3. VPN comes back up
+When VPN re-establishes the dynamic route gets added to the Monitoring route table. This triggers another event that will initiate a Step Funtion to remove the static route via peering now that the dynamic route is back again.
+![VPN Up](/images/VPN comes back up.png)
+Format: ![Alt Text](url)
+
 
 ## Prerequisites
 

@@ -36,23 +36,65 @@ For this setup to work you will need to have at least two route tables configure
 
 The architecture below shows an overview of how the setup will work.
 
-1. Steady State
+1. **Steady State**  
 In the example below there is a TGW with two attachments: VPN and Peering. There are two route tables - Monitoring, not used by any attachments and Production, used by all attachments (this would include any VPCs that the TGW would attach to). All the routes are propagated into both Route Tables.
 ![Steady State](/images/steady-state.png)
-Format: ![Alt Text](url)
 
-2. VPN goes down
+2. **VPN goes down**  
 When the VPN connection goes down the dynamic route would be removed from both route tables. There is a CloudWatch event enabled for the Monitoring route table. The CloudWatch event will trigger a Step Function that will act based on the event. Because a route was un-installed it will add a static route via alternative path (peering attachment) to the production route table.
-![VPN Down](/images/VPN goes down.png)
-Format: ![Alt Text](url)
+![VPN Down](/images/vpn-down.png)
 
-3. VPN comes back up
+3. **VPN comes back up**  
 When VPN re-establishes the dynamic route gets added to the Monitoring route table. This triggers another event that will initiate a Step Funtion to remove the static route via peering now that the dynamic route is back again.
-![VPN Up](/images/VPN comes back up.png)
-Format: ![Alt Text](url)
+![VPN Up](/images/vpn-up.png)
 
 
 ## Prerequisites
+
+To streamline the setup process, this project is using AWS Serverless Application Model (AWS SAM). All the components and their interactions are defined in the AWS SAM template that can be easily deployed into your AWS account.
+
+To use the AWS SAM Command Line Interface (CLI), you need the following tools.
+
+* AWS SAM CLI – [Install the AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
+* [Python 3.8](https://www.python.org/downloads/) installed
+* Enable [Transit Gateway Network Manager](https://docs.aws.amazon.com/vpc/latest/tgw/network-manager-getting-started.html) and [Onboard it to CloudWatch Insights](https://docs.aws.amazon.com/vpc/latest/tgw/monitoring-events.html)
+
+
+
+## SAM Deployment Walkthrough
+1. Confirm you completed all prerequisites listed above
+2. Clone or Download this repository into your local machine
+3. Follow instructions below to build a sam project:
+
+To build project:
+```
+sam build
+```
+
+To deploy project:
+```
+sam deploy --guided
+```
+
+You will be prompted for parameter values. Below table explains their purpose.
+
+
+| Property                | Description           | Default Value  |
+| ----------------------- |---------------------| :--------------:|
+| **Stack Name**          | The name of the stack to deploy to CloudFormation. | give it unique name          |
+| **AWS Region**| The AWS region you want to deploy your app to.| us-east-1 |
+| **DDBinterestingDomainsTable**| Name of DynamoDB table that will hold list of interesting domain. Table will be populated by the `ImportInterestingDomainsListFunc` Lambda function. `StreamInlineProcessingFunction` Lambda function will check DNS log entries against entries in this table | `interesting-domains-table` |
+| **S3interestingDomainsBucket**| YOU MUST CHANGE THIS. S3 Bucket where interesting domains file is stored | `interesting-domains-bucket` |
+| **S3DNSLogsBucketName**|  YOU MUST CHANGE THIS. S3 Bucket for Kinesis Firehose to output logs | `dns-logs-output` |
+| **StreamProcessorMemorySize**| Inline Lambda function memory allocation | `256` |
+| **StreamProcessorTimeout**|  Inline Lambda function timeout in seconds | `120` |
+| **StreamOutput3Prefix**|  Prefix for Kinesis Firehose Output | `dns-query-logs/!{timestamp:yyyy/MM/dd}` |
+| **StreamOutputErrorPrefix**|  Prefix for Kinesis Firehose Output, for errors | `delivery-failures/!{firehose:error-output-type}/!{timestamp:yyyy/MM/dd}` |
+| **StreamOutputCompressionFormat**|  Kinesis Firehose output format - https://docs.aws.amazon.com/firehose/latest/dev/create-configure.html| `GZIP` |
+| **StreamBufferingInterval**|  Kinesis Firehose buffer interval in seconds (how long Firehose waits before delivering data to S3), select interval of 60–900 seconds - https://docs.aws.amazon.com/firehose/latest/dev/create-configure.html | `60`|
+| **StreamBufferSize**|  Kinesis Firehose buffer size in MB. We recomend that you keep this value low as logs will be compresed and processed by Lambda. Lambda has Invocation Limit of 6MB for Request/Response: https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html. Limits for Kinesis Firehose: https://docs.aws.amazon.com/firehose/latest/dev/create-configure.html | `1` |
+| **SNStopicName**| SNS Topic to send notification on matches | `dns-logs-match-topic` |
+| **SNSinUse**| Turn on/off SNS Notifications | `Y` |
 
 
 ## Security

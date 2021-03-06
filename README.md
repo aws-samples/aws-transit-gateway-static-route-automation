@@ -66,7 +66,7 @@ To use the AWS SAM Command Line Interface (CLI) and complete this project, you n
 2. Clone or Download this repository into your local machine
 3. Follow instructions below to build a sam project.
 
-!! Make sure you're deploying the template into us-west-2 (Oregon) AWS Region. That's where all the TGW Network Manager Events appear by default.
+:exclamation::exclamation: Make sure you're deploying the template into us-west-2 (Oregon) AWS Region. That's where all the TGW Network Manager Events appear by default.:exclamation::exclamation:
 
 To build project:
 ```

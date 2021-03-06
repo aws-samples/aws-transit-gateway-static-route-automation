@@ -53,7 +53,7 @@ When VPN re-establishes the dynamic route gets added to the Monitoring route tab
 
 To streamline the setup process, this project is using AWS Serverless Application Model (AWS SAM). All the components and their interactions are defined in the AWS SAM template that can be easily deployed into your AWS account.
 
-To use the AWS SAM Command Line Interface (CLI), you need the following tools.
+To use the AWS SAM Command Line Interface (CLI) and complete this project, you need the following tools.
 
 * AWS SAM CLI – [Install the AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 * [Python 3.8](https://www.python.org/downloads/) installed
@@ -64,7 +64,9 @@ To use the AWS SAM Command Line Interface (CLI), you need the following tools.
 ## SAM Deployment Walkthrough
 1. Confirm you completed all prerequisites listed above
 2. Clone or Download this repository into your local machine
-3. Follow instructions below to build a sam project:
+3. Follow instructions below to build a sam project.
+
+!! Make sure you're deploying the template into us-west-2 (Oregon) AWS Region. That's where all the TGW Network Manager Events appear by default.
 
 To build project:
 ```
@@ -82,19 +84,13 @@ You will be prompted for parameter values. Below table explains their purpose.
 | Property                | Description           | Default Value  |
 | ----------------------- |---------------------| :--------------:|
 | **Stack Name**          | The name of the stack to deploy to CloudFormation. | give it unique name          |
-| **AWS Region**| The AWS region you want to deploy your app to.| us-east-1 |
-| **DDBinterestingDomainsTable**| Name of DynamoDB table that will hold list of interesting domain. Table will be populated by the `ImportInterestingDomainsListFunc` Lambda function. `StreamInlineProcessingFunction` Lambda function will check DNS log entries against entries in this table | `interesting-domains-table` |
-| **S3interestingDomainsBucket**| YOU MUST CHANGE THIS. S3 Bucket where interesting domains file is stored | `interesting-domains-bucket` |
-| **S3DNSLogsBucketName**|  YOU MUST CHANGE THIS. S3 Bucket for Kinesis Firehose to output logs | `dns-logs-output` |
-| **StreamProcessorMemorySize**| Inline Lambda function memory allocation | `256` |
-| **StreamProcessorTimeout**|  Inline Lambda function timeout in seconds | `120` |
-| **StreamOutput3Prefix**|  Prefix for Kinesis Firehose Output | `dns-query-logs/!{timestamp:yyyy/MM/dd}` |
-| **StreamOutputErrorPrefix**|  Prefix for Kinesis Firehose Output, for errors | `delivery-failures/!{firehose:error-output-type}/!{timestamp:yyyy/MM/dd}` |
-| **StreamOutputCompressionFormat**|  Kinesis Firehose output format - https://docs.aws.amazon.com/firehose/latest/dev/create-configure.html| `GZIP` |
-| **StreamBufferingInterval**|  Kinesis Firehose buffer interval in seconds (how long Firehose waits before delivering data to S3), select interval of 60–900 seconds - https://docs.aws.amazon.com/firehose/latest/dev/create-configure.html | `60`|
-| **StreamBufferSize**|  Kinesis Firehose buffer size in MB. We recomend that you keep this value low as logs will be compresed and processed by Lambda. Lambda has Invocation Limit of 6MB for Request/Response: https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html. Limits for Kinesis Firehose: https://docs.aws.amazon.com/firehose/latest/dev/create-configure.html | `1` |
-| **SNStopicName**| SNS Topic to send notification on matches | `dns-logs-match-topic` |
-| **SNSinUse**| Turn on/off SNS Notifications | `Y` |
+| **AWS Region**| Must be set to **us-west-2** | us-east-1 |
+| **TGWRegion**| The region where your TGW is hosted | us-east-2 |
+| **TGWDestinationAttachmentID**| The id of the attachment used as the next hop for the static route (i.e. peering) | tgw-attach-123456789abcd1234 |
+| **TGWProductionRouteTableID**|  The ID of the **Production** route table | tgw-rtb-production |
+| **TGWRoute**| The route you want to monitor and create a static for | 0.0.0.0/0 |
+| **TGWMonitorRouteTableID**|  The ID of the **Monitoring** route table | tgw-rtb-monitor |
+
 
 
 ## Security

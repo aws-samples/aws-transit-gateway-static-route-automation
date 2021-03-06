@@ -3,7 +3,7 @@
 ## About
 This project is intended to help with automating creating/deleting of [AWS Transit Gateway](https://aws.amazon.com/transit-gateway/) (TGW) static routes triggered by specific network event. Conceptually, it can be thought of as creating an API driven, 'floating/conditional' static route in the TGW route table.
 
-## What challenge are we solving?
+## What challenge is this solving?
 AWS TGW is a highly available, scalable distributed routing service managed by AWS. It operates like a logical router that allows for connecting different environments (Amazon VPCs, datacenters, TGWs in other AWS regions) and creating hub-and-spoke topologies.
 
 Just like a router, TGW makes forwarding decisions based on the information in its routing table. There are a couple of ways to populate that routing table:
@@ -32,16 +32,16 @@ To solve it you have two options:
 * if you must use the same route (i.e. you can't edit the remote route advertisement) then **the TGW static route automation** in this document can help you. It will allow you to add the static default route only when the dynamic, VPN route disappears.
 
 ## Architecture
-For this setup to work you will need to have at least two route tables configured on your TGW. The first one, **production route table**, will be used by all the attachments - effectively controlling how traffic is forwarded between them. The second one, let's call it **'monitoring route table'** will be used to track any dynamic routing changes that the automation will trigger changes on.
+For this setup to work you will need to have [Transit Gateway Network Manager](https://docs.aws.amazon.com/vpc/latest/tgw/network-manager-getting-started.html) enabled and at least two route tables configured on your TGW. The first one, **production route table**, will be used by all the attachments - effectively controlling how traffic is forwarded between them. The second one, let's call it **'monitoring route table'** will be used to track any dynamic routing changes that the automation will trigger changes on.
 
 The architecture below shows an overview of how the setup will work.
 
 1. **Steady State**  
-In the example below there is a TGW with two attachments: VPN and Peering. There are two route tables - Monitoring, not used by any attachments and Production, used by all attachments (this would include any VPCs that the TGW would attach to). All the routes are propagated into both Route Tables.
+In the example below there is a TGW with two attachments: VPN and Peering. There are two route tables - `Monitoring`, not used by any attachments and `Production`, used by all attachments (this would include any VPCs that the TGW would attach to). All the dynamic routes are automatically propagated into both Route Tables.
 ![Steady State](/images/steady-state.png)
 
 2. **VPN goes down**  
-When the VPN connection goes down the dynamic route would be removed from both route tables. There is a CloudWatch event enabled for the Monitoring route table. The CloudWatch event will trigger a Step Function that will act based on the event. Because a route was un-installed it will add a static route via alternative path (peering attachment) to the production route table.
+When the VPN connection goes down the dynamic route would be removed from both route tables. There is a CloudWatch event enabled for the Monitoring route table. The CloudWatch event will trigger a Step Function that will act based on the event. If a route was un-installed it will add a static route via alternative path (peering attachment) to the production route table.
 ![VPN Down](/images/vpn-down.png)
 
 3. **VPN comes back up**  
@@ -67,9 +67,9 @@ To use the AWS SAM Command Line Interface (CLI) and complete this project, you n
 3. Follow instructions below to build a sam project.
 
 :exclamation::exclamation:
-```diff
-- Make sure you're deploying the template into us-west-2 (Oregon) AWS Region. That's where all the TGW Network Manager Events appear by default.
-```
+
+Make sure you're deploying the template into **us-west-2 (Oregon)** AWS Region. That's where all the TGW Network Manager Events appear by default.
+
 :exclamation::exclamation:
 
 To build project:
@@ -88,7 +88,7 @@ You will be prompted for parameter values. Below table explains their purpose.
 | Property                | Description           | Default Value  |
 | ----------------------- |---------------------| :--------------:|
 | **Stack Name**          | The name of the stack to deploy to CloudFormation. | give it unique name          |
-| **AWS Region**| Must be set to **us-west-2** | us-east-1 |
+| **AWS Region**| MUST be set to **us-west-2** | us-east-1 |
 | **TGWRegion**| The region where your TGW is hosted | us-east-2 |
 | **TGWDestinationAttachmentID**| The id of the attachment used as the next hop for the static route (i.e. peering) | tgw-attach-123456789abcd1234 |
 | **TGWProductionRouteTableID**|  The ID of the **Production** route table | tgw-rtb-production |

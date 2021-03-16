@@ -56,7 +56,7 @@ To streamline the setup process, this project is using AWS Serverless Applicatio
 To use the AWS SAM Command Line Interface (CLI) and complete this project, you need the following tools.
 
 * AWS SAM CLI – [Install the AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-* [Python 3.8](https://www.python.org/downloads/) installed
+* [Python 3.8](https://www.python.org/downloads/) installed - without it SAM BUILD will not work
 * Enable [Transit Gateway Network Manager](https://docs.aws.amazon.com/vpc/latest/tgw/network-manager-getting-started.html) and [Onboard it to CloudWatch Insights](https://docs.aws.amazon.com/vpc/latest/tgw/monitoring-events.html)
 
 

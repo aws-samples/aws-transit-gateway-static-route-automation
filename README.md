@@ -79,7 +79,7 @@ sam build
 
 To deploy project:
 ```
-sam deploy --guided
+sam deploy --guided --region us-west-2
 ```
 
 You will be prompted for parameter values. Below table explains their purpose.
@@ -88,7 +88,7 @@ You will be prompted for parameter values. Below table explains their purpose.
 | Property                | Description           | Default Value  |
 | ----------------------- |---------------------| :--------------:|
 | **Stack Name**          | The name of the stack to deploy to CloudFormation. | give it unique name          |
-| **AWS Region**| MUST be set to **us-west-2** | us-east-1 |
+| **AWS Region**| MUST be set to **us-west-2** | us-west-2 |
 | **TGWRegion**| The region where your TGW is hosted | us-east-2 |
 | **TGWDestinationAttachmentID**| The id of the attachment used as the next hop for the static route (i.e. peering) | tgw-attach-123456789abcd1234 |
 | **TGWProductionRouteTableID**|  The ID of the **Production** route table | tgw-rtb-production |

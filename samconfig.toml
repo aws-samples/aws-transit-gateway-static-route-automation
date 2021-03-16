@@ -2,10 +2,10 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "sam-tgw-update"
+stack_name = "sam-app"
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-11ivsmpueo2as"
-s3_prefix = "sam-tgw-update"
+s3_prefix = "sam-app"
 region = "us-west-2"
-confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "TGWRegion=\"us-east-2\" TGWDestinationAttachmentID=\"tgw-attach-026a149f5b0971286\" TGWProductionRouteTableID=\"tgw-rtb-073e7c915ed69e225\" TGWRoute=\"1.1.1.5/32\" TGWMonitorRouteTableID=\"tgw-rtb-0570ec4c5a62bee00\""
+parameter_overrides = "TGWRegion=\"us-east-2\" TGWDestinationAttachmentID=\"tgw-attach-026a149f5b0971286\" TGWProductionRouteTableID=\"tgw-rtb-073e7c915ed69e225\" TGWRoute=\"1.1.1.1/32\" TGWMonitorRouteTableID=\"tgw-rtb-0570ec4c5a62bee00\""
+confirm_changeset = true

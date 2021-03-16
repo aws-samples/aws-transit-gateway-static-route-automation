@@ -52,7 +52,7 @@ def lambda_handler(event, context):
             )
             logger.info(f"Route {route} deleted from TGW RT {tgw_rt_id}")
         except Exception as ex:
-            logger.info(f"exception occured while deleting a tgw route: {ex}"
+            logger.info(f"exception occured while deleting a tgw route: {ex}")
             raise
 
     logger.info("funct:: lambda_handler completed... ")

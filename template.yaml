@@ -4,17 +4,20 @@ Description: >
   Sample SAM Template for automating TGW static route updates
 Parameters:
   TGWRegion:
-    Description: The AWS Region where you TGW is deployed
-    Default: us-east-2
+    Description: The AWS Region where your TGW is deployed
     Type: String
+    AllowedPattern: ^[a-zA-Z]+-[a-zA-Z]+-[0-9]+$
+    ConstraintDescription: Provide the AWS region where your TGW is hosted
   TGWDestinationAttachmentID:
     Description: The TGW attachment ID that will be the destination of the static route
-    Default: tgw-attach-123456789abcd1234
     Type: String
+    AllowedPattern: ^tgw-attach-[a-zA-Z0-9]+$
+    ConstraintDescription: Provide TGW ID for the destination attachment in format tgw-attach-XXXX
   TGWProductionRouteTableID:
     Description: The TGW route table ID that will be updated with static route
-    Default: tgw-rtb-production
     Type: String
+    AllowedPattern: ^tgw-rtb-[a-zA-Z0-9]+$
+    ConstraintDescription: Provide TGW PRODUCTION route table ID in format tgw-rtb-XXXX
   TGWRoute:
     Description: The static route that will be added/removed from the TGW Route Table
     Default: 0.0.0.0/0
@@ -23,8 +26,9 @@ Parameters:
     MaxLength: 19
   TGWMonitorRouteTableID:
     Description: The ID for the TGW Route table used for monitoring changes in dynamic routes
-    Default: tgw-rtb-monitor
     Type: String
+    AllowedPattern: ^tgw-rtb-[a-zA-Z0-9]+$
+    ConstraintDescription: Provide TGW MONITOR route table ID in format tgw-rtb-XXXX
 
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst

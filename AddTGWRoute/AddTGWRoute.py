@@ -27,10 +27,10 @@ def already_exists(route,tgw_rt_id):
 
     # If the search is emtry return True
     if route_search['Routes']:
-        logger.info("funct:: already_exists: route {} found in TGW RT {} ".format(route, tgw_rt_id))
+        logger.info(f"funct:: already_exists: route {route} found in TGW RT {tgw_rt_id}")
         return True
     else:
-        logger.info("funct:: already_exists: route {} NOT found in TGW RT {} ".format(route, tgw_rt_id))
+        logger.info(f"funct:: already_exists: route {route} NOT found in TGW RT {tgw_rt_id}")
         return False
 
 
@@ -44,7 +44,7 @@ def lambda_handler(event, context):
 
     if not already_exists(route, tgw_rt_id):
         try:
-            logger.info("Adding route {} via {} to TGW RT {}".format(route,tgw_attachment_id,tgw_rt_id))
+            logger.info(f"Adding route {route} via {tgw_attachment_id} to TGW RT {tgw_rt_id}")
             client.create_transit_gateway_route(
                 DestinationCidrBlock=route,
                 TransitGatewayRouteTableId=tgw_rt_id,
@@ -53,7 +53,7 @@ def lambda_handler(event, context):
                 DryRun=False
             )
         except Exception as ex:
-            logger.info("exception occured while adding a tgw route: {} ".format(ex))
+            logger.info(f"exception occured while adding a tgw route: {ex} ")
             raise
 
     logger.info("funct:: lambda_handler completed... ")

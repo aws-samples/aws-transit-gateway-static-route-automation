@@ -85,7 +85,7 @@ sam deploy --guided --region us-west-2
 You will be prompted for parameter values. Below table explains their purpose.
 
 
-| Property                | Description           | Default Value  |
+| Property                | Description           | Value Format Example  |
 | ----------------------- |---------------------| :--------------:|
 | **Stack Name**          | The name of the stack to deploy to CloudFormation. | give it unique name          |
 | **AWS Region**| MUST be set to **us-west-2** | us-west-2 |

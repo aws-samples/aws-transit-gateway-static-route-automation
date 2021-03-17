@@ -26,7 +26,8 @@ def static_exists(route,tgw_rt_id):
 
     # If the route exists check if it is static
     try:
-        if route_search['Routes'][0]['Type']=='static':
+        route_type=route_search['Routes'][0]['Type']
+        if route_type=='static':
             logger.info(f"funct:: static_exists: {route_search['Routes'][0]['Type']} route {route} found in TGW RT {tgw_rt_id}")
             return True
         else:
